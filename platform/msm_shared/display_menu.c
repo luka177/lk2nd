@@ -41,7 +41,7 @@
 #include <target.h>
 #include <sys/types.h>
 #include <../../../app/aboot/devinfo.h>
-#include <../../../app/aboot/lk2nd-device.h>
+#include <lk2nd-device.h>
 #include <../../../app/aboot/recovery.h>
 
 static const char *unlock_menu_common_msg = "By unlocking the bootloader, you will be able to install "\
