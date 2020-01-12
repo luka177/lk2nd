@@ -5,6 +5,10 @@
 #include <platform.h>
 #include <dev/fbcon.h>
 #include <target/display.h>
+#include <platform.h>
+#include <platform/iomap.h>
+#include <platform/timer.h>
+#include <stdlib.h>
 
 #define PIPE_BASE  MDP_VP_0_RGB_0_BASE
 
@@ -13,8 +17,19 @@ static struct fbcon_config fb = {
 	.format = FB_FORMAT_RGB888,
 };
 
+unsigned int panel_is_cmd_mode = 0;
+
 extern int check_aboot_addr_range_overlap(uintptr_t start, uint32_t size);
 extern int check_ddr_addr_range_bound(uintptr_t start, uint32_t size);
+
+static struct msm_panel_info pinfo = {0};
+
+static void mdss_mdp_cmd_kickoff(void)
+{
+	mdp_dma_on(&pinfo);
+	dsb();
+	mdelay(20);
+}
 
 static int mdss_read_config(struct fbcon_config *fb)
 {
@@ -62,6 +77,13 @@ static int mdss_read_config(struct fbcon_config *fb)
 	if (!fb->base) {
 		dprintf(CRITICAL, "Failed to map continuous splash memory region\n");
 		return -1;
+	}
+
+	if (panel_is_cmd_mode) {
+		pinfo.pipe_type = MDSS_MDP_PIPE_TYPE_RGB;
+		pinfo.dest = DISPLAY_1;
+
+		fb->update_start = mdss_mdp_cmd_kickoff;
 	}
 
 	return 0;

@@ -10,6 +10,7 @@
 
 struct lk2nd_device lk2nd_dev = {0};
 extern struct board_data board;
+extern unsigned int panel_is_cmd_mode;
 
 static void update_board_id(struct board_id *board_id)
 {
@@ -130,6 +131,10 @@ void lk2nd_parse_device_node(const void *fdt)
 		dprintf(INFO, "Device model: %s\n", lk2nd_dev.model);
 	else
 		dprintf(CRITICAL, "Device node is missing 'model' property\n");
+
+	if (fdt_getprop(fdt, offset, "lk2nd,panel-cmd-mode", NULL)) {
+		panel_is_cmd_mode = 1;
+	}
 }
 
 
