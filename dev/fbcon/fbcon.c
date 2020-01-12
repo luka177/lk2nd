@@ -52,6 +52,9 @@ struct fb_color {
 	uint32_t bg;
 };
 
+unsigned int fbcon_offset_x = 0;
+unsigned int fbcon_offset_y = 0;
+
 static struct fbcon_config *config = NULL;
 
 #define RGB565_BLACK		0x0000
@@ -284,6 +287,7 @@ void fbcon_draw_line(uint32_t type)
 	line_color = fb_color_formats[type].fg;
 
 	pixels = config->base;
+	pixels += ((config->bpp / 8) * fbcon_offset_y * config->width);
 	pixels += cur_pos.y * ((config->bpp / 8) * FONT_HEIGHT * config->width);
 	pixels += cur_pos.x * ((config->bpp / 8) * (FONT_WIDTH + 1));
 
@@ -368,6 +372,8 @@ void fbcon_putc_factor(char c, int type, unsigned scale_factor)
 	fbcon_set_colors(type);
 
 	pixels = config->base;
+	pixels += (config->bpp /8) * fbcon_offset_x;
+	pixels += ((config->bpp / 8) * fbcon_offset_y * config->width);
 	pixels += cur_pos.y * ((config->bpp / 8) * FONT_HEIGHT * config->width);
 	pixels += cur_pos.x * scale_factor * ((config->bpp / 8) * (FONT_WIDTH + 1));
 
@@ -450,8 +456,8 @@ void fbcon_setup(struct fbcon_config *_config)
 
 	cur_pos.x = 0;
 	cur_pos.y = 0;
-	max_pos.x = config->width / (FONT_WIDTH+1);
-	max_pos.y = (config->height - 1) / FONT_HEIGHT;
+	max_pos.x = (config->width - fbcon_offset_x) / (FONT_WIDTH+1);
+	max_pos.y = (config->height - fbcon_offset_y - 1) / FONT_HEIGHT;
 
 #if !DISPLAY_SPLASH_SCREEN
 	fbcon_clear();

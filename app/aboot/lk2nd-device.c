@@ -11,6 +11,8 @@
 struct lk2nd_device lk2nd_dev = {0};
 extern struct board_data board;
 extern unsigned int panel_is_cmd_mode;
+extern unsigned int fbcon_offset_x;
+extern unsigned int fbcon_offset_y;
 
 static void update_board_id(struct board_id *board_id)
 {
@@ -118,6 +120,9 @@ static int lk2nd_find_device_offset(const void *fdt)
 
 void lk2nd_parse_device_node(const void *fdt)
 {
+
+	const uint32_t *offsets = NULL;
+	int len;
 	int offset = lk2nd_find_device_offset(fdt);
 	if (offset < 0) {
 		dprintf(CRITICAL, "Failed to find matching lk2nd,device node: %d\n", offset);
@@ -134,6 +139,14 @@ void lk2nd_parse_device_node(const void *fdt)
 
 	if (fdt_getprop(fdt, offset, "lk2nd,panel-cmd-mode", NULL)) {
 		panel_is_cmd_mode = 1;
+	}
+
+	offsets = fdt_getprop(fdt, offset, "lk2nd,fbcon-offsets", &len);
+	if (offsets && (len == (2 * sizeof(*offsets)))) {
+		fbcon_offset_x = fdt32_to_cpu(offsets[0]);
+		fbcon_offset_y = fdt32_to_cpu(offsets[1]);
+		dprintf(INFO, "fbcon-offsets: %d, %d \n",
+				fbcon_offset_x, fbcon_offset_y);
 	}
 }
 
