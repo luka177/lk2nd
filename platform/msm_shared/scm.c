@@ -1294,10 +1294,7 @@ void scm_check_boot_fuses()
                         secure_value = secure_value && !CHECK_BIT(resp[0], SECBOOT_FUSE_RPMB_ENABLED_BIT);
 
 		if (secure_value) {
-			if ((qseecom_get_version() < QSEE_VERSION_40))
-				 secure_boot_enabled = true;
-			else if (CHECK_BIT(resp[0], SECBOOT_FUSE_DEBUG_RE_ENABLED_BIT))
-				secure_boot_enabled = true;
+			secure_boot_enabled = true;
 		}
 
 		/* Bit 2 - DEBUG_DISABLE_CHECK */
