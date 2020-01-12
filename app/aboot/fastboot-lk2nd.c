@@ -2,6 +2,7 @@
 #include <debug.h>
 #include <pm8x41_regulator.h>
 #include <lk2nd-device.h>
+#include <dev/fbcon.h>
 #include "fastboot.h"
 
 #if TARGET_MSM8916
@@ -31,6 +32,13 @@ static void cmd_oem_cmdline(const char *arg, void *data, unsigned sz)
 	fastboot_stage(lk2nd_dev.cmdline, strlen(lk2nd_dev.cmdline));
 }
 
+static void cmd_oem_fb_clear(const char *arg, void *data, unsigned sz)
+{
+	fbcon_clear();
+	fbcon_flush();
+	fastboot_okay("");
+}
+
 void fastboot_lk2nd_register_commands(void) {
 #if TARGET_MSM8916
 	fastboot_register("oem dump-regulators", cmd_oem_dump_regulators);
@@ -38,6 +46,7 @@ void fastboot_lk2nd_register_commands(void) {
 #if WITH_DEBUG_LOG_BUF
 	fastboot_register("oem lk_log", cmd_oem_lk_log);
 #endif
+	fastboot_register("oem fb_clear", cmd_oem_fb_clear);
 
 	if (lk2nd_dev.cmdline)
 		fastboot_register("oem cmdline", cmd_oem_cmdline);
