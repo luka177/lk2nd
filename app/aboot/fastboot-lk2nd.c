@@ -39,6 +39,15 @@ static void cmd_oem_fb_clear(const char *arg, void *data, unsigned sz)
 	fastboot_okay("");
 }
 
+static void cmd_oem_fb_pull(const char *arg, void *data, unsigned sz)
+{
+	struct fbcon_config *fbconfig = fbcon_display();
+	if (!fbconfig)
+		fastboot_fail("fbcon is not initialized");
+	fastboot_stage(fbconfig->base,
+			fbconfig->width * fbconfig->height * fbconfig->bpp / 8);
+}
+
 void fastboot_lk2nd_register_commands(void) {
 #if TARGET_MSM8916
 	fastboot_register("oem dump-regulators", cmd_oem_dump_regulators);
@@ -47,6 +56,7 @@ void fastboot_lk2nd_register_commands(void) {
 	fastboot_register("oem lk_log", cmd_oem_lk_log);
 #endif
 	fastboot_register("oem fb_clear", cmd_oem_fb_clear);
+	fastboot_register("oem fb_pull", cmd_oem_fb_pull);
 
 	if (lk2nd_dev.cmdline)
 		fastboot_register("oem cmdline", cmd_oem_cmdline);
