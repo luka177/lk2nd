@@ -4,7 +4,8 @@ LOCAL_DIR := $(GET_LOCAL_DIR)
 
 TARGET := msm8952
 
-MODULES += app/aboot
+
+MODULES += app/reboot
 
 ifeq ($(TARGET_BUILD_VARIANT),user)
 DEBUG := 0
@@ -21,7 +22,7 @@ endif
 
 ENABLE_SECAPP_LOADER := 1
 ENABLE_RPMB_SUPPORT := 1
-
+DEFINES += WITH_DEBUG_FBCON=1
 ifeq ($(VERIFIED_BOOT),1)
 ENABLE_MDTP_SUPPORT := 1
 #enable fbcon display menu
@@ -38,7 +39,7 @@ ifneq (,$(findstring DISPLAY_SPLASH_SCREEN,$(DEFINES)))
   ENABLE_FBCON_DISPLAY_MSG := 1
 endif
 endif
-
+DEFINES += ENABLE_FBCON_LOGGING=1
 #Enable below flag to compile cmnlib64
 DEFINES += ENABLE_CMNLIB64_LOADING=1
 

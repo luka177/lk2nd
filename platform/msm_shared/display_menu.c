@@ -40,9 +40,9 @@
 #include <smem.h>
 #include <target.h>
 #include <sys/types.h>
-#include <../../../app/aboot/devinfo.h>
+#include <../../../app/reboot/aboot/devinfo.h>
 #include <lk2nd-device.h>
-#include <../../../app/aboot/recovery.h>
+#include <../../../app/reboot/aboot/recovery.h>
 
 static const char *unlock_menu_common_msg = "By unlocking the bootloader, you will be able to install "\
 				"custom operating system on this phone. "\

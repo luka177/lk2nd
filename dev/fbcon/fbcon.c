@@ -55,7 +55,7 @@ struct fb_color {
 unsigned int fbcon_offset_x = 0;
 unsigned int fbcon_offset_y = 0;
 
-static struct fbcon_config *config = NULL;
+struct fbcon_config *config = NULL;
 
 #define RGB565_BLACK		0x0000
 #define RGB565_WHITE		0xffff
@@ -77,10 +77,7 @@ static struct fbcon_config *config = NULL;
 #define RGB888_RED              0xff0000
 #define RGB888_GREEN            0x00ff00
 
-#define FONT_WIDTH		5
-#define FONT_HEIGHT		12
-
-#define SCALE_FACTOR		2
+#define SCALE_FACTOR		5
 
 static uint32_t			BGCOLOR;
 static uint32_t			FGCOLOR;
@@ -180,6 +177,11 @@ static void fbcon_drawglyph(char *pixels, uint32_t paint, unsigned stride,
 
 }
 
+
+void fbcon_drawchar(char *pixels, uint32_t paint, char c, unsigned scale_factor)
+{
+    fbcon_drawglyph(pixels, paint, config->stride, (config->bpp / 8), font5x12 + (c - 32) * 2, scale_factor);
+}
 void fbcon_draw_msg_background(unsigned y_start, unsigned y_end,
 	uint32_t old_paint, int update)
 {
@@ -315,14 +317,14 @@ static void fbcon_set_colors(int type)
 	FGCOLOR = fb_color_formats[type].fg;
 }
 
-void fbcon_clear(void)
-{
+//void fbcon_clear(void)
+/*{
 	unsigned long i = 0, j = 0;
 	unsigned char *pixels = NULL;
 	unsigned count;
 	uint32_t bg_color;
 
-	/* ignore anything that happens before fbcon is initialized */
+
 	if (!config)
 		return;
 
@@ -340,7 +342,7 @@ void fbcon_clear(void)
 	}
 	cur_pos.x = 0;
 	cur_pos.y = 0;
-}
+}*/
 
 void fbcon_putc_factor(char c, int type, unsigned scale_factor)
 {
@@ -603,4 +605,85 @@ void display_image_on_screen(void)
 #else
 	display_default_image_on_screen();
 #endif
+}
+// © 2019 Mis012 - SPDX-License-Identifier: GPL-2.0+
+// from here till the end of file
+
+//gfx functions
+
+void fbcon_clear(void)
+{
+	//we know that BGCOLOR is black, so we can minimize flicker by using memset
+
+	unsigned int count = config->width * config->height * (config->bpp/8);
+	memset(config->base, 0, count);
+}
+
+void fbcon_draw_pixel(unsigned int x, unsigned int y, uint32_t color) 
+{
+	if((x > (config->width - 1)) || (y > (config->height)))
+		return;
+
+	long location = x * (config->bpp/8) + y * config->width * (config->bpp/8);
+
+	/*BGR*/
+	*((uint8_t *)config->base + location + 0) = ((color >> 0) & 0xff);
+	*((uint8_t *)config->base + location + 1) = ((color >> 8)  & 0xff);
+	*((uint8_t *)config->base + location + 2) = ((color >> 16)  & 0xff);
+}
+
+void fbcon_draw_horizontal_line(unsigned int x1, unsigned int x2, unsigned int y, uint32_t color) 
+{
+	if(x1 > x2)
+		return;
+
+	unsigned int i;
+	for (i = x1; i < x2; i++)
+		fbcon_draw_pixel(i, y, color);
+}
+
+void fbcon_draw_vertical_line(unsigned int x, unsigned int y1, unsigned int y2, uint32_t color) 
+{
+	if(y1 > y2)
+		return;
+
+	unsigned int i;
+	for (i = y1; i < y2;i++)
+		fbcon_draw_pixel(x, i, color);
+}
+
+void fbcon_draw_rectangle(unsigned int x1, unsigned int y1, unsigned int width, unsigned int height, uint32_t color) 
+{
+	unsigned int x2 = x1 + width;
+	unsigned int y2 = y1 + height;
+
+	fbcon_draw_horizontal_line(x1, x2, y1, color);
+	fbcon_draw_horizontal_line(x1, x2, y2, color);
+	fbcon_draw_vertical_line(x1, y1, y2, color);
+	fbcon_draw_vertical_line(x2, y1, y2, color);
+}
+
+void fbcon_draw_filled_rectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, uint32_t color) {
+	unsigned int i;
+	unsigned int j;
+
+	for(j = y; j < y + height; j++) {
+		for(i = x; i < x + width; i++) {
+			fbcon_draw_pixel(i, j, color);
+		}
+	}
+}
+
+void fbcon_draw_text(unsigned int x, unsigned int y, const char *text, unsigned int scale_factor, uint32_t color)
+{
+	unsigned int i = 0;
+
+	while (text[i] != '\0') {
+		char *pixels = config->base;
+		pixels += y * ((config->bpp / 8) * config->width);
+		pixels += (x + (i * (FONT_WIDTH + 1) * scale_factor)) * ((config->bpp / 8));
+
+		fbcon_drawglyph(pixels, color, config->stride, (config->bpp / 8), font5x12 + (text[i] - 32) * 2, scale_factor);
+		i++;
+	}
 }

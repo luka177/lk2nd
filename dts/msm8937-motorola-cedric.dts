@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (C) 2020 - Dreemurrs Embedded Labs
+
+/dts-v1/;
+
+/include/ "msm8952.dtsi"
+
+/ {
+	// This is used by the bootloader to find the correct DTB 
+	qcom,msm-id = <294 66 0 0x10000>;
+	//qcom,board-id = <0x41 0x8100>;
+
+	model = "cedric";
+	compatible = "lk2nd,device", "qcom,msm8937-cedric", "qcom,msm8937-moto", "qcom,msm8937";
+    lk2nd,uart = <1>;
+};
+

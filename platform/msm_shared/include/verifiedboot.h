@@ -35,8 +35,8 @@
 #include <sys/types.h>
 #include <mmc.h>
 #include <platform.h>
-#include <devinfo.h>
-#include <meta_format.h>
+#include <../reboot/aboot/devinfo.h>
+#include <../reboot/aboot/meta_format.h>
 #include <boot_device.h>
 #include <boot_verifier.h>
 #include <target.h>

@@ -32,7 +32,7 @@
 #include <boot_verifier.h>
 #include <ab_partition_parser.h>
 #include <partition_parser.h>
-#include <recovery.h>
+#include <../reboot/aboot/recovery.h>
 #include <display_menu.h>
 #include <../../../app/aboot/mdtp.h>
 #include <platform/timer.h>

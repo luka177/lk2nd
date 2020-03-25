@@ -26,7 +26,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <fastboot.h>
+#include <../reboot/aboot/fastboot.h>
 #include <err.h>
 
 extern const char *suffix_slot[];
